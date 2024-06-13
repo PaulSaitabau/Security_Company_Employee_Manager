@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
+
 class Guard(Base):
     __tablename__ = 'guards'
     id = Column(Integer, primary_key=True)
