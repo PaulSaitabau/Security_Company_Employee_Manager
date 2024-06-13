@@ -21,3 +21,4 @@ class Incident(Base):
     description = Column(String)
     guard_id = Column(Integer, ForeignKey('guards.id'))
     department = Column(String)
+    guard = relationship("Guard", back_populates="incidents")
