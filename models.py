@@ -30,25 +30,34 @@ class SecurityCompany:
             self.session.add(guard)
             self.session.commit()
             print(f"{department.capitalize()} guard added successfully.")
+            
+            # Debug prints
+            print("Debug: Guards in database after adding:")
+            guards = self.session.query(Guard).all()
+            for guard in guards:
+                print(guard.id, guard.name, guard.start_date, guard.assignment, guard.shift, guard.location)
+                
         except Exception as e:
             print("Error adding guard:", e)
-
+    
     def list_guards(self):
         try:
             department = input("Enter department (Operations/Management): ")
-            guards = self.session.query(Guard).filter(Guard.location == department.capitalize()).all()
+            department = department.capitalize()  # Capitalize the department name
+            
+            guards = self.session.query(Guard).filter(Guard.location == department).all()
             if guards:
-                table = PrettyTable(['ID', 'Name', 'Assignment', 'Shift', 'Location'])
+                table = PrettyTable(['ID', 'Name', 'Start Date', 'Assignment', 'Shift', 'Location'])
                 for guard in guards:
                     table.add_row([guard.id, guard.name, guard.start_date, guard.assignment, guard.shift, guard.location])
-                print(f"{department.capitalize()} Department Guards:")
+                print(f"{department} Department Guards:")
                 print(table)
             else:
                 print("No guards found.")
         except Exception as e:
             print("Error listing guards:", e)
 
-   
+
     def add_incident(self):
         try:
             guard_id = int(input("Enter guard ID: "))
@@ -69,6 +78,7 @@ class SecurityCompany:
                 print("Guard not found.")
         except Exception as e:
             print("Error adding incident:", e)
+            
     def list_incidents(self):
         try:
             incidents = self.session.query(Incident).all()
@@ -95,3 +105,25 @@ class SecurityCompany:
                 print("Guard not found.")
         except Exception as e:
             print("Error deleting guard:", e)
+
+if __name__ == "__main__":
+    company = SecurityCompany()
+    while True:
+        print("\n1. Add Guard\n2. List Guards\n3. Add Incident\n4. List Incidents\n5. Delete Guard\n6. Exit")
+        choice = input("Enter your choice: ")
+        
+        if choice == "1":
+            company.add_guard()
+        elif choice == "2":
+            company.list_guards()
+        elif choice == "3":
+            company.add_incident()
+        elif choice == "4":
+            company.list_incidents()
+        elif choice == "5":
+            company.delete_guard()
+        elif choice == "6":
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice. Please choose a number from 1 to 6.")
