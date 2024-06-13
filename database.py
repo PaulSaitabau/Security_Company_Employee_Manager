@@ -19,3 +19,7 @@ class ManagementGuard(Base):
     assignment = Column(String)
     shift = Column(String)
     location = Column(String)
+
+    if __name__ == "__main__":
+         engine = create_engine('sqlite:///security_company.db')
+         Base.metadata.create_all(engine)
