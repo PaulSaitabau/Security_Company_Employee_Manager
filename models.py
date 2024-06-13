@@ -13,3 +13,13 @@ class OperationsGuard(Base):
     shift = Column(String)
     location = Column(String)
     incidents = relationship("Incident", back_populates="guard")
+
+    class ManagementGuard(Base):
+     __tablename__ = 'management_guards'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    start_date = Column(Date)
+    assignment = Column(String)
+    shift = Column(String)
+    location = Column(String)
+    incidents = relationship("Incident", back_populates="guard")
