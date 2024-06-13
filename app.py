@@ -71,3 +71,40 @@ class SecurityCompany:
         for incident in incidents:
             table.add_row([incident.id, incident.date, incident.description, incident.guard_id, incident.department])
         print(table)
+
+    def delete_guard(self):
+        department = input("Enter department (Operations/Management): ")
+        guard_id = int(input("Enter the ID of the guard to delete: "))
+
+        if department.lower() == 'operations':
+            guard = self.session.query(OperationsGuard).get(guard_id)
+        elif department.lower() == 'management':
+            guard = self.session.query(ManagementGuard).get(guard_id)
+        else:
+            print("Invalid department.")
+            return
+
+        if guard:
+            self.session.delete(guard)
+            self.session.commit()
+            print("Guard deleted successfully.")
+        else:
+            print("Guard not found.")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Security Company Employee Manager')
+    parser.add_argument('command', choices=['add_guard', 'list_guards', 'add_incident', 'list_incidents', 'delete_guard'], help='Command to execute')
+    args = parser.parse_args()
+
+    company = SecurityCompany()
+
+    if args.command == 'add_guard':
+        company.add_guard()
+    elif args.command == 'list_guards':
+        company.list_guards()
+    elif args.command == 'add_incident':
+        company.add_incident()
+    elif args.command == 'list_incidents':
+        company.list_incidents()
+    elif args.command == 'delete_guard':
+        company.delete_guard()
