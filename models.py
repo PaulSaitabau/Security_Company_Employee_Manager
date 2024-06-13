@@ -1,6 +1,8 @@
 from sqlalchemy.orm import sessionmaker
 from database import Base, Guard, Incident
 from prettytable import PrettyTable
+from sqlalchemy import create_engine
+from datetime import datetime
 
 class SecurityCompany:
     def __init__(self):
@@ -11,15 +13,18 @@ class SecurityCompany:
             self.session = Session()
         except Exception as e:
             print("Error initializing SecurityCompany:", e)
-
+            
     def add_guard(self):
         try:
             department = input("Enter department (Operations/Management): ")
             name = input("Enter guard's name: ")
-            start_date = input("Enter start date (YYYY-MM-DD): ")
+            start_date_str = input("Enter start date (YYYY-MM-DD): ")
             assignment = input("Enter assignment: ")
             shift = input("Enter shift (Day/Night): ")
             location = input("Enter location: ")
+
+            # Convert start_date_str to a Python date object
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
 
             guard = Guard(name=name, start_date=start_date, assignment=assignment, shift=shift, location=location)
             self.session.add(guard)
