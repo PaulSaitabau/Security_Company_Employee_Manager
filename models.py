@@ -38,7 +38,7 @@ class SecurityCompany:
             department = input("Enter department (Operations/Management): ")
             guards = self.session.query(Guard).filter(Guard.location == department.capitalize()).all()
             if guards:
-                table = PrettyTable(['ID', 'Name', 'Start Date', 'Assignment', 'Shift', 'Location'])
+                table = PrettyTable(['ID', 'Name', 'Assignment', 'Shift', 'Location'])
                 for guard in guards:
                     table.add_row([guard.id, guard.name, guard.start_date, guard.assignment, guard.shift, guard.location])
                 print(f"{department.capitalize()} Department Guards:")
