@@ -48,15 +48,20 @@ class SecurityCompany:
         except Exception as e:
             print("Error listing guards:", e)
 
+   
     def add_incident(self):
         try:
             guard_id = int(input("Enter guard ID: "))
             guard = self.session.query(Guard).get(guard_id)
             if guard:
-                date = input("Enter incident date (YYYY-MM-DD): ")
+                date_str = input("Enter incident date (YYYY-MM-DD): ")
                 description = input("Enter incident description: ")
                 department = input("Enter department (Operations/Management): ")
-                incident = Incident(date=date, description=description, department=department.capitalize(), guard=guard)
+
+                # Convert date_str to a Python date object
+                incident_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+
+                incident = Incident(date=incident_date, description=description, department=department.capitalize(), guard=guard)
                 self.session.add(incident)
                 self.session.commit()
                 print("Incident added successfully.")
@@ -64,7 +69,6 @@ class SecurityCompany:
                 print("Guard not found.")
         except Exception as e:
             print("Error adding incident:", e)
-
     def list_incidents(self):
         try:
             incidents = self.session.query(Incident).all()
