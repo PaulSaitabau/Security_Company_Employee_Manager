@@ -1,35 +1,75 @@
-from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from database import Base, Guard, Incident
+from prettytable import PrettyTable
 
-Base = declarative_base()
+class SecurityCompany:
+    def __init__(self):
+        try:
+            self.engine = create_engine('sqlite:///security_company.db')
+            Base.metadata.create_all(self.engine)
+            Session = sessionmaker(bind=self.engine)
+            self.session = Session()
+        except Exception as e:
+            print("Error initializing SecurityCompany:", e)
+        
 
+    def add_guard(self):
+        department = input("Enter department (Operations/Management): ")
+        name = input("Enter guard's name: ")
+        start_date = input("Enter start date (YYYY-MM-DD): ")
+        assignment = input("Enter assignment: ")
+        shift = input("Enter shift (Day/Night): ")
+        location = input("Enter location: ")
 
-class OperationsGuard(Base):
-    __tablename__ = 'operations_guards'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    start_date = Column(Date)
-    assignment = Column(String)
-    shift = Column(String)
-    location = Column(String)
-    incidents = relationship("Incident", back_populates="guard")
+        guard = Guard(name=name, start_date=start_date, assignment=assignment, shift=shift, location=location)
+        self.session.add(guard)
+        self.session.commit()
+        print(f"{department.capitalize()} guard added successfully.")
 
-    class ManagementGuard(Base):
-     __tablename__ = 'management_guards'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    start_date = Column(Date)
-    assignment = Column(String)
-    shift = Column(String)
-    location = Column(String)
-    incidents = relationship("Incident", back_populates="guard")
+    def list_guards(self):
+        department = input("Enter department (Operations/Management): ")
+        guards = self.session.query(Guard).filter(Guard.location == department.capitalize()).all()
+        if guards:
+            table = PrettyTable(['ID', 'Name', 'Start Date', 'Assignment', 'Shift', 'Location'])
+            for guard in guards:
+                table.add_row([guard.id, guard.name, guard.start_date, guard.assignment, guard.shift, guard.location])
+            print(f"{department.capitalize()} Department Guards:")
+            print(table)
+        else:
+            print("No guards found.")
 
-    class Incident(Base):
-     __tablename__ = 'incidents'
-    id = Column(Integer, primary_key=True)
-    date = Column(Date)
-    description = Column(String)
-    guard_id = Column(Integer, ForeignKey('operations_guards.id'))  # Add foreign key relationship to OperationsGuard
-    department = Column(String)  # New column to store the department of the guard
-    guard = relationship("OperationsGuard", back_populates="incidents")  # Use OperationsGuard as the relationship target
+    def add_incident(self):
+        guard_id = int(input("Enter guard ID: "))
+        guard = self.session.query(Guard).get(guard_id)
+        if guard:
+            date = input("Enter incident date (YYYY-MM-DD): ")
+            description = input("Enter incident description: ")
+            department = input("Enter department (Operations/Management): ")
+            incident = Incident(date=date, description=description, department=department.capitalize(), guard=guard)
+            self.session.add(incident)
+            self.session.commit()
+            print("Incident added successfully.")
+        else:
+            print("Guard not found.")
+
+    def list_incidents(self):
+        incidents = self.session.query(Incident).all()
+        if incidents:
+            table = PrettyTable(['ID', 'Date', 'Description', 'Guard ID', 'Department'])
+            for incident in incidents:
+                table.add_row([incident.id, incident.date, incident.description, incident.guard_id, incident.department])
+            print("List of Incidents:")
+            print(table)
+        else:
+            print("No incidents found.")
+
+    def delete_guard(self):
+        guard_id = int(input("Enter the ID of the guard to delete: "))
+        guard = self.session.query(Guard).get(guard_id)
+        if guard:
+            self.session.delete(guard)
+            self.session.commit()
+            print("Guard deleted successfully.")
+        else:
+            print("Guard not found.")
