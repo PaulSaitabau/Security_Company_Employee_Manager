@@ -23,3 +23,12 @@ class OperationsGuard(Base):
     shift = Column(String)
     location = Column(String)
     incidents = relationship("Incident", back_populates="guard")
+
+    class Incident(Base):
+     __tablename__ = 'incidents'
+    id = Column(Integer, primary_key=True)
+    date = Column(Date)
+    description = Column(String)
+    guard_id = Column(Integer, ForeignKey('operations_guards.id'))  # Add foreign key relationship to OperationsGuard
+    department = Column(String)  # New column to store the department of the guard
+    guard = relationship("OperationsGuard", back_populates="incidents")  # Use OperationsGuard as the relationship target
